@@ -1,4 +1,5 @@
 """A video player class."""
+import random
 
 from .video_library import VideoLibrary
 
@@ -12,44 +13,93 @@ class VideoPlayer:
     def number_of_videos(self):
         num_videos = len(self._video_library.get_all_videos())
         print(f"{num_videos} videos in the library")
+        return num_videos
 
     def show_all_videos(self):
         """Returns all videos."""
+        print("Here's a list of all available videos:")
+        videos = self._video_library.get_all_videos()
+        sorted_videos = sorted(videos, key=lambda x:x.title)
+        for video in sorted_videos:
+            video_format = f"{video.title} ({video.video_id}) [{' '.join(video.tags)}]"
+            print(video_format)
 
-        print("show_all_videos needs implementation")
+
+    global check_playing
+    check_playing = []
 
     def play_video(self, video_id):
         """Plays the respective video.
+        #play video, stop video if currently playing, if doesnt exist display warning
 
         Args:
             video_id: The video_id to be played.
         """
-        print("play_video needs implementation")
+
+        video = self._video_library.get_video(video_id)
+        if video is None:
+            print("Cannot play video: Video does not exist")
+        else:
+            print("Playing video: " + str(video.title))
+            check_playing.append(video.title)
+
+        if len(check_playing) != 0 and video is not None:
+            print("Stopping video: " + str(check_playing[0]))
+            check_playing.pop()
 
     def stop_video(self):
         """Stops the current video."""
-
-        print("stop_video needs implementation")
+        if len(check_playing) != 0:
+            print("Stopping video: " + str(check_playing[0]))
+            check_playing.pop()
+        else:
+            print("Cannot stop video: No video is currently playing")
 
     def play_random_video(self):
         """Plays a random video from the video library."""
+        if len(check_playing) != 0:
+            print("Stopping video: " + str(check_playing[0]))
+            check_playing.pop()
 
-        print("play_random_video needs implementation")
+        videos = self._video_library.get_all_videos()
+        random_video = random.choice(videos)
+        print("Playing video: " + str(random_video.title))
+        check_playing.append(random_video.title)
+
+    global check_pausing
+    check_pausing = []
 
     def pause_video(self):
         """Pauses the current video."""
-
-        print("pause_video needs implementation")
+        if len(check_pausing) != 0 and len(check_playing) != 0:
+            print("Video already paused: " + str(check_playing[0]))
+        elif len(check_playing) != 0 and len(check_pausing) == 0:
+            print("Pausing video: " + str(check_playing[0]))
+            check_pausing.append(str(check_playing[0]))
+        else:
+            print("Cannot pause video: No video is currently playing")
 
     def continue_video(self):
         """Resumes playing the current video."""
+        if len(check_pausing) != 0:
+            print("Continuing video: " + str(check_pausing[0]))
+            check_pausing.pop()
+        elif len(check_playing) != 0 and len(check_pausing) == 0:
+            print("Cannot continue video: Video is not paused")
 
-        print("continue_video needs implementation")
+        if len(check_playing) == 0:
+            print("Cannot continue: No video is currently playing")
 
     def show_playing(self):
         """Displays video currently playing."""
-
-        print("show_playing needs implementation")
+        if len(check_playing) != 0:
+            videos = self._video_library.get_all_videos()
+            for video in videos:
+                if video.title == str(check_playing[0]):
+                    video_format = f"{video.title} ({video.video_id}) [{' '.join(video.tags)}]"
+                    print("Currently playing: " + video_format)
+        else:
+            print("No video is currently playing")
 
     def create_playlist(self, playlist_name):
         """Creates a playlist with a given name.
